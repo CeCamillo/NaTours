@@ -6,19 +6,11 @@ const app = express();
 
 app.use(express.json());
 
-// app.get('/', (req, res) => {
-//   res.status(200).json({ message: 'OK' });
-// });
-
-// app.post('/', (req, res) => {
-//   res.send('You can post to this endpoint');
-// });
-
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/data/tours-simple.json`)
 );
 
-app.get('/tours', (req, res) => {
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'ok',
     results: tours.length,
@@ -26,9 +18,9 @@ app.get('/tours', (req, res) => {
       tours,
     },
   });
-});
+};
 
-app.get('/tours/:id', (req, res) => {
+const getTour = (req, res) => {
   console.log(req.params);
 
   const id = req.params.id * 1; // converting to number
@@ -49,9 +41,9 @@ app.get('/tours/:id', (req, res) => {
       tour,
     },
   });
-});
+};
 
-app.post('/tours', (req, res) => {
+const createTour = (req, res) => {
   // console.log(req.body);
 
   const newId = tours[tours.length - 1].id + 1;
@@ -70,9 +62,9 @@ app.post('/tours', (req, res) => {
       });
     }
   );
-});
+};
 
-app.patch('/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
   if (req.params.id * 1 > tours.length) {
     // testing for invalid ID's
     return res.status(404).json({
@@ -87,9 +79,9 @@ app.patch('/tours/:id', (req, res) => {
       tour: '<updated tour goes here...>',
     },
   });
-});
+};
 
-app.delete('/tours/:id', (req, res) => {
+const deleteTour = (req, res) => {
   if (req.params.id * 1 > tours.length) {
     // testing for invalid ID's
     return res.status(404).json({
@@ -102,7 +94,16 @@ app.delete('/tours/:id', (req, res) => {
     status: 'success',
     data: null,
   });
-});
+};
+
+// app.get('/tours', getAllTours);
+// app.get('/tours/:id', getTour);
+// app.post('/tours', createTour);
+// app.patch('/tours/:id', updateTour);
+// app.delete('/tours/:id', deleteTour);
+
+app.route('/tours').get(getAllTours).post(createTour);
+app.route('/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
 app.listen(8000, () => {
   console.log(`Server running on: http://localhost:8000`);
